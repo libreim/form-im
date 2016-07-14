@@ -1,0 +1,19 @@
+!!!
+%html
+  %head
+    %title dgiim-form
+  %body
+    %h1 Formulario del dgiim
+    %form{ :action => "", :method => "post"}
+      %fieldset
+        %ol
+          %li
+            %label{:for => "title"} Título:
+            %input{:type => "text", :name => "title", :class => "text"}
+          %li
+            %label{:for => "author"} Autor:
+            %input{:type => "text", :name => "author", :class => "text"}
+          %li
+            %label{:for => "link"} Enlace:
+            %input{:type => "text", :name => "link", :class => "text"}
+        %input{:type => "submit", :value => "Send", :class => "button"}
