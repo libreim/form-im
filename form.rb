@@ -23,7 +23,7 @@ post '/' do
   sha_base_tree = github.commit(repo, sha_latest_commit).commit.tree.sha
 
   # Filename
-  file_name = File.join("some_dir","new_file.txt")
+  file_name = File.join("some_dir","testfile")
   blob_sha = github.create_blob(repo,Base64.encode64(my_content),"base64")
   sha_new_tree = github.create_tree(repo,
                                     [ { :path => file_name,
