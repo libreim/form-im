@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'sinatra'
 require 'haml'
+require 'octokit'
 
 get '/' do
   haml :index
@@ -14,30 +15,30 @@ post '/' do
 
   ## OCTOKIT
   # Provide authentication credentials
-  repo = 'dgiim/blog'
+  github = Octokit::Client.new(:login => 'dgiimbot', :password => 'password')
+  repo = 'm42/dgiim-form'
   ref = 'heads/master'
-  client = Octokit::Client.new :login => 'dgiimbot', :password => 'password'
-  user = client.user
-  user.login
+  sha_latest_commit = github.ref(repo,ref).object.sha
+  sha_base_tree = github.commit(repo, sha_latest_commit).commit.tree.sha
+
+  # Filename
+  file_name = File.join("some_dir","new_file.txt")
+  blob_sha = github.create_blob(repo,Base64.encode64(my_content),"base64")
+  sha_new_tree = github.create_tree(repo,
+                                    [ { :path => file_name,
+                                        :mode => "100644"
+                                        :type => "blob"
+                                        :sha  => blob_sha } ],
+                                    { :base_tree => sha_base_tree }).sha
+  # Create new commit
+  commit_message = "Commited via Octokit!"
+  sha_new_commit = github.create_commit(repo,
+                                        commit_message,
+                                        sha_new_tree,
+                                        sha_last_commit).sha
+  updated_ref = github.update_ref(repo,ref,sha_new_commit)
+  puts.updated_ref
   
 
-  # Create new commit
-  create_commit(
-    "dgiim/blog",
-    "[form] Post: $title",
-    "????", # the SHA of the tree object the new commit will point to
-    "????", # parent
-  )
-    
-  # Pull request
-  client.create_pull_request(
-    "dgiim/blog",
-    "gh-pages",
-    "post-title-branch", ## TODO!
-    "Pull request title",
-    "Pull request body" ## optional
-  )
-  
-  
   haml :index
 end
