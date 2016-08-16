@@ -26,7 +26,7 @@ def modify_repo repo, head, commit_msg, &block
     g.push("origin", head)
   rescue StandardError => e
     puts "==> Failed to modify repo #{repo}. Error: #{e}"
-    success == false
+    success = false
   end
   FileUtils.rm_rf(dir)
 
