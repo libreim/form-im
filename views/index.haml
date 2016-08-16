@@ -3,18 +3,18 @@
   %head
     %title dgiim-form
   %body
-    %form{action: "/link", method: "post"}
+    %form{action: "/resource", method: "post"}
       %h1 Nuevo enlace
       %fieldset
         %p
-          %label{for: "link_title"} Título
-          %input#link_title{type: "text", name: "title", class: "text"}
+          %label{for: "resource_title"} Título
+          %input#resource_title{type: "text", name: "title", class: "text"}
         %p
-          %label{for: "link_author"} Autor
-          %input#link_author{type: "text", name: "author", class: "text"}
+          %label{for: "resource_author"} Autor
+          %input#resource_author{type: "text", name: "author", class: "text"}
         %p
-          %label{for: "link_url"} Enlace
-          %input#link_url{type: "text", name: "link", class: "text"}
+          %label{for: "resource_link"} Enlace
+          %input#resource_link{type: "text", name: "link", class: "text"}
         %p
           %input{type: "submit", value: "Enviar", class: "button"}
     %form{action: "/post", method: "post"}
