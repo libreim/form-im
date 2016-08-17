@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 require 'rubygems'
 require 'sinatra'
+require "sinatra/reloader" # remove when deployed
 require 'haml'
+require 'sass'
+require 'kramdown'
+require 'rouge'
 require 'octokit'
 require 'securerandom'
 require 'fileutils'
@@ -11,7 +15,21 @@ require_relative "repo"
 github = Octokit::Client.new(:access_token => ENV["LIBREIMBOT_TOKEN"])
 
 get "/" do
-  haml :index
+  redirect to("/post")
+end
+
+get "/post" do
+  erb :layout, layout: false do
+    haml :post
+  end
+end
+
+get "/resource" do
+  haml :resource
+end
+
+get "/style.css" do
+  scss :style
 end
 
 post "/resource" do
@@ -22,7 +40,7 @@ post "/resource" do
   # section = params[:section]
   # category = params[:category]
 
-  repo = "libreim/awesome"
+  repo = "libreimbot/awesome"
   base = "gh-pages"
   head = "new-resource-#{SecureRandom.uuid}"
 
@@ -55,6 +73,7 @@ post "/post" do
   content = params[:content]
   category = params[:category] || "unclassified"
 
+  date = Date.today.strftime "%Y-%m-%d"
   filename = title.downcase.split(" ")[0..4].join(" ")
 
   subs = {
@@ -71,12 +90,12 @@ post "/post" do
     filename.gsub! k, v
   end
 
-  repo = "libreim/blog"
+  repo = "libreimbot/blog"
   base = "gh-pages"
   head = "new-post-#{filename}"
 
   modify_repo repo, head, "Nuevo post: #{title}" do
-    File.open("_posts/#{filename}.md", "w") do |f|
+    File.open("_posts/#{date}-#{filename}.md", "w") do |f|
       f.write <<EOF
 ---
 layout: post
@@ -97,4 +116,8 @@ EOF
   # Return the user to the home page
   # TODO: show success status (and link to new pull request)
   redirect to("/")
+end
+
+post "/preview" do
+  Kramdown::Document.new(params[:content], syntax_highlighter: :rouge).to_html
 end
