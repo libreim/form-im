@@ -1,0 +1,130 @@
+%h1 Nuevo post
+%form.pure-form.pure-form-stacked.contrib-form{action: "/post", method: "post"}
+  %fieldset.pure-group
+    %input.title-field{type: "text", name: "title", placeholder: "Título"}
+    %input{type: "text", name: "author", placeholder: "Autor"}
+    %input{type: "text", name: "category", placeholder: "Categoría"}
+  %fieldset.pure-group
+    %textarea#markdown_editor{name: "content", placeholder: "Contenido"}
+  %div.post-preview
+
+  %div.note
+    Usa el botón de vista previa
+    %i.fa.fa-eye
+    para visualizar el resultado.
+    Al hacer clic en
+    %i Enviar
+    tu post se subirá para revisión a una nueva rama de
+    %a{href: "https://github.com/libreim/blog"} nuestro repositorio de código libre
+    para el blog.
+  %p
+    %input.pure-button.pure-button-primary{type: "submit", value: "Enviar"}
+
+/ Editor
+%link{rel: "stylesheet", href: "https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css"}
+%script{src: "https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"}
+:javascript
+  // Your classic ajax request function
+  function AjaxRequest(url, method, data, callback) {
+    var xmlhttp;
+
+    if (window.XMLHttpRequest)
+      xmlhttp = new XMLHttpRequest();
+    else
+      xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+
+    xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        if (xmlhttp.responseXML) {
+          callback(xmlhttp.responseXML);
+        } else {
+          callback(xmlhttp.responseText);
+        }
+      }
+    };
+
+    xmlhttp.open(method, url, true);
+
+    if (method == "POST")
+      xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+    xmlhttp.send(data);
+  }
+
+  var textarea = document.getElementById("markdown_editor");
+  if (textarea) {
+    // Load Markdown editor with customized options
+    var simplemde = new SimpleMDE({
+      element: textarea,
+      // no spell checker since we write mostly in Spanish
+      spellChecker: false,
+      // plz autosave thanks
+      autosave: {
+        enabled: true,
+        delay: 10000,
+        uniqueId: "newpost"
+      },
+      // correct indentation
+      indentWithTabs: false,
+      tabSize: 4,
+      renderingConfig: {
+        singleLineBreaks: false,
+        codeSyntaxHighlighting: false
+      },
+      // use our own preview system (kramdown + rouge + mathjax)
+      previewRender: function(plainText, preview) {
+        // Only preview after a second of no changes
+        if (window.cutreTimeout)
+          clearTimeout(window.cutreTimeout);
+
+        window.cutreTimeout = setTimeout(function() {
+          AjaxRequest("/preview", "POST", "content=" + encodeURIComponent(plainText), function(response) {
+            preview.innerHTML = response;
+            var new_math = document.querySelectorAll("script[type='math/tex; mode=display']:not([id])");
+            if (new_math.length > 0)
+              MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+          });
+        }, 1000);
+
+        return preview.innerHTML;
+      },
+      // also customize toolbar: add code and math buttons
+      toolbar: [
+        "bold",
+        "italic",
+        "heading",
+        "|",
+        "code",
+        // Math button: inserts new formula or wraps selection within double dollars ($$)
+        {
+          name: "math",
+          action: function customFunction(editor) {
+            // based on some logic from mde's _toggleBlock
+            // (https://github.com/NextStepWebs/simplemde-markdown-editor/blob/487ff36385ad9d442fbefb408192a97b5729437a/src/js/simplemde.js#L932)
+            var cm = editor.codemirror;
+          	var startPoint = cm.getCursor("start");
+            var endPoint = cm.getCursor("end");
+            var text = cm.getSelection();
+            cm.replaceSelection("$$" + text + "$$");
+            startPoint.ch += 2;
+            endPoint.ch = startPoint.ch + text.length;
+          	cm.setSelection(startPoint, endPoint);
+            cm.focus();
+          },
+          className: "fa fa-plus",
+          title: "Insert formula",
+        },
+        "|",
+        "quote",
+        "unordered-list",
+        "ordered-list",
+        "|",
+        "link",
+        "image",
+        "|",
+        "preview",
+        "side-by-side",
+        "fullscreen"
+      ]
+    });
+  }

@@ -1,0 +1,18 @@
+.contrib-form {
+  input[type="text"], textarea {
+    width: 100%;
+  }
+
+  textarea {
+    min-height: 10em;
+  }
+
+  .title-field {
+    font-size: 200%;
+  }
+
+  .note {
+    color: #666;
+    font-size: 0.9em;
+  }
+}
