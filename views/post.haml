@@ -5,10 +5,10 @@
     %input{type: "text", name: "author", placeholder: "Autor"}
     %input{type: "text", name: "category", placeholder: "Categoría"}
   %fieldset.pure-group
-    %textarea#markdown_editor{name: "content", placeholder: "Contenido"}
-  %div.post-preview
+    %textarea#markdown_editor{name: "content", placeholder: "Contenido"}= @prev_post
 
-  %div.note
+
+  %p.note
     Usa el botón de vista previa
     %i.fa.fa-eye
     para visualizar el resultado.

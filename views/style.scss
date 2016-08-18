@@ -16,3 +16,15 @@
     font-size: 0.9em;
   }
 }
+
+.msg {
+  padding: 0.6em 1.2em;
+  margin: 1.2em 0 0;
+  border: darken(#f0f0f0, 20%);
+  background: #f0f0f0;
+
+  &.error {
+    border: darken(#f0b0a0, 20%);
+    background: #f0b0a0;
+  }
+}

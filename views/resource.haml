@@ -1,0 +1,15 @@
+%h1 Nuevo recurso
+%form.pure-form.pure-form-stacked.contrib-form{action: "/resource", method: "post"}
+  %fieldset.pure-group
+    %input{type: "text", name: "title", placeholder: "Título"}
+    %input{type: "text", name: "author", placeholder: "Autor"}
+    %input{type: "text", name: "link", placeholder: "Enlace (opcional)"}
+    %input{type: "text", name: "description", placeholder: "Descripción corta (opcional)"}
+  %p.note
+    Al hacer clic en
+    %i Enviar
+    tu recurso se subirá para revisión a una nueva rama de
+    %a{href: "https://github.com/libreim/awesome"} nuestro repositorio de código libre
+    para Awesome.
+  %p
+    %input.pure-button.pure-button-primary{type: "submit", value: "Enviar"}
