@@ -28,3 +28,21 @@
     background: #f0b0a0;
   }
 }
+
+.highlighter-rouge {
+  background: #f6f6f6;
+  border: 1px solid #d0d0d0;
+  overflow-x: auto;
+  margin-top: 0;
+  padding: 0.6rem;
+  display: block;
+}
+
+dl .highlighter-rouge {
+  border-width: 1px 0;
+}
+
+code, .highlighter-rouge {
+  font-family: "Source Code Pro", monospace;
+  font-size: 0.8rem;
+}
