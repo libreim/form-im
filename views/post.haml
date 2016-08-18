@@ -79,7 +79,7 @@
           clearTimeout(window.cutreTimeout);
 
         window.cutreTimeout = setTimeout(function() {
-          AjaxRequest("/preview", "POST", "content=" + encodeURIComponent(plainText), function(response) {
+          AjaxRequest("/dgiim/new/preview", "POST", "content=" + encodeURIComponent(plainText), function(response) {
             preview.innerHTML = response;
             var new_math = document.querySelectorAll("script[type='math/tex; mode=display']:not([id])");
             if (new_math.length > 0)
