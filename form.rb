@@ -19,13 +19,11 @@ get "/" do
 end
 
 get "/post" do
-  erb :layout, layout: false do
-    haml :post
-  end
+  haml :post, layout_engine: :erb
 end
 
 get "/resource" do
-  haml :resource
+  haml :resource, layout_engine: :erb
 end
 
 get "/style.css" do
@@ -37,6 +35,7 @@ post "/resource" do
   title = params[:title]
   author = params[:author]
   link = params[:link]
+  description = params[:description].empty? ? "" : " - *#{params[:description]}*"
   # section = params[:section]
   # category = params[:category]
 
@@ -45,25 +44,29 @@ post "/resource" do
   head = "new-resource-#{SecureRandom.uuid}"
 
   begin
+    raise "El título no debe estar vacío" if title.empty?
+    raise "El autor no debe estar vacío" if author.empty?
+
     modify_repo repo, head, "Nuevo recurso: #{title}" do
       # Add resource to unclassified
       File.open("_common/unclassified.md", "a") do |file|
         file.puts(if link.empty?
-          "**#{title}** - #{author}  "
+          "**#{title}** - #{author}#{description}  "
         else
-          "[#{title} - #{author}](#{link})  "
+          "[#{title} - #{author}](#{link})#{description}  "
         end)
       end
     end
 
     # Finally, create a pull request using octokit
-    github.create_pull_request(repo, base, head, "Nuevo recurso: #{title}", "Añade *[#{title}](#{link})* de #{author}.")
-  rescue StandardError => e
-  end
+    response = github.create_pull_request(repo, base, head, "Nuevo recurso: #{title}", "Añade *[#{title}](#{link})* de #{author}.")
 
-  # Return the user to the home page
-  # TODO: show success status (and link to new pull request)
-  redirect to("/")
+    @message = "Tu recurso se ha enviado. <a href=\"#{response.html_url}\">Ver pull request</a>"
+    haml :resource, layout_engine: :erb
+  rescue StandardError => e
+    @error = "Algo ocurrió: <em>#{e}</em>"
+    haml :resource, layout_engine: :erb
+  end
 end
 
 post "/post" do
@@ -94,9 +97,13 @@ post "/post" do
   base = "gh-pages"
   head = "new-post-#{filename}"
 
-  modify_repo repo, head, "Nuevo post: #{title}" do
-    File.open("_posts/#{date}-#{filename}.md", "w") do |f|
-      f.write <<EOF
+  begin
+    raise "El título no debe estar vacío" if title.empty?
+    raise "El autor no debe estar vacío" if author.empty?
+
+    modify_repo repo, head, "Nuevo post: #{title}" do
+      File.open("_posts/#{date}-#{filename}.md", "w") do |f|
+        f.write <<EOF
 ---
 layout: post
 title: #{title}
@@ -110,12 +117,16 @@ EOF
     end
   end
 
-  # Finally, create a pull request using octokit
-  github.create_pull_request(repo, base, head, "Nuevo post: #{title}", "Añade *#{title}* de #{author}.")
+    # Finally, create a pull request using octokit
+    response = github.create_pull_request(repo, base, head, "Nuevo post: #{title}", "Añade *#{title}* de #{author}.")
 
-  # Return the user to the home page
-  # TODO: show success status (and link to new pull request)
-  redirect to("/")
+    @message = "Tu post se ha enviado. <a href=\"#{response.html_url}\">Ver pull request</a>"
+    haml :post, layout_engine: :erb
+  rescue StandardError => e
+    @error = "Algo ocurrió: <em>#{e}</em>"
+    @prev_post = content
+    haml :post, layout_engine: :erb
+  end
 end
 
 post "/preview" do
