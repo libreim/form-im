@@ -107,8 +107,7 @@ post "/post" do
 ---
 layout: post
 title: #{title}
-authors:
-- #{author}
+authors: #{author.split /,\s*/}
 category: #{category}
 ---
 
