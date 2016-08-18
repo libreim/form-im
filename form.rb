@@ -11,6 +11,8 @@ require 'securerandom'
 require 'fileutils'
 require_relative "repo"
 
+set :port, 3002
+
 # Provide authentication credentials
 github = Octokit::Client.new(:access_token => ENV["LIBREIMBOT_TOKEN"])
 
