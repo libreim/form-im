@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'rubygems'
 require 'sinatra'
-require "sinatra/reloader" # remove when deployed
+# require "sinatra/reloader" # remove when deployed
 require 'haml'
 require 'sass'
 require 'kramdown'
@@ -11,20 +11,21 @@ require 'securerandom'
 require 'fileutils'
 require_relative "repo"
 
+set :bind, '0.0.0.0'
 set :port, 3002
 
 # Provide authentication credentials
 github = Octokit::Client.new(:access_token => ENV["LIBREIMBOT_TOKEN"])
 
 get "/" do
-  redirect to("/post")
+  redirect to("/post/")
 end
 
-get "/post" do
+get "/post/?" do
   haml :post, layout_engine: :erb
 end
 
-get "/resource" do
+get "/resource/?" do
   haml :resource, layout_engine: :erb
 end
 
@@ -32,7 +33,7 @@ get "/style.css" do
   scss :style
 end
 
-post "/resource" do
+post "/resource/?" do
   # Get parameters from request
   title = params[:title]
   author = params[:author]
@@ -41,7 +42,7 @@ post "/resource" do
   # section = params[:section]
   # category = params[:category]
 
-  repo = "libreimbot/awesome"
+  repo = "libreim/awesome"
   base = "gh-pages"
   head = "new-resource-#{SecureRandom.uuid}"
 
@@ -71,7 +72,7 @@ post "/resource" do
   end
 end
 
-post "/post" do
+post "/post/?" do
   # Get parameters from request
   title = params[:title]
   author = params[:author]
@@ -95,7 +96,7 @@ post "/post" do
     filename.gsub! k, v
   end
 
-  repo = "libreimbot/blog"
+  repo = "libreim/blog"
   base = "gh-pages"
   head = "new-post-#{filename}"
 
@@ -130,6 +131,6 @@ EOF
   end
 end
 
-post "/preview" do
+post "/preview/?" do
   Kramdown::Document.new(params[:content], syntax_highlighter: :rouge).to_html
 end
