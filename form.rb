@@ -49,6 +49,7 @@ post "/resource/?" do
   head = "new-resource-#{SecureRandom.uuid}"
 
   begin
+    raise "No pareces humano :(" unless verify_recaptcha
     raise "El título no debe estar vacío" if title.empty?
     raise "El autor no debe estar vacío" if author.empty?
 
