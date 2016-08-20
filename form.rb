@@ -1,18 +1,20 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-require 'sinatra'
-# require "sinatra/reloader" # remove when deployed
-require 'haml'
-require 'sass'
-require 'kramdown'
-require 'rouge'
-require 'octokit'
-require 'securerandom'
-require 'fileutils'
+require 'bundler'
+Bundler.require(:default)
 require_relative "repo"
 
 set :bind, '0.0.0.0'
 set :port, 3002
+
+# Recaptcha configuration
+Recaptcha.configure do |config|
+  config.public_key  = ENV["RECAPTCHA_SITE"]
+  config.private_key = ENV["RECAPTCHA_PRIVATE"]
+end
+
+include Recaptcha::ClientHelper
+include Recaptcha::Verify
 
 # Provide authentication credentials
 github = Octokit::Client.new(:access_token => ENV["LIBREIMBOT_TOKEN"])
@@ -101,6 +103,7 @@ post "/post/?" do
   head = "new-post-#{filename}"
 
   begin
+    raise "No pareces humano :(" unless verify_recaptcha
     raise "El título no debe estar vacío" if title.empty?
     raise "El autor no debe estar vacío" if author.empty?
 
